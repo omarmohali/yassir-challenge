@@ -1,18 +1,18 @@
 import Foundation
+import CharactersAPI
 
 protocol CharactersRepositoryProtocol {
-  func getCharacters(for page: Int, filters: [Filter]) async throws -> [Character]
+  func getCharacters(for page: Int, filter: Filter?) async throws -> [Character]
 }
 
 class CharactersRepository: CharactersRepositoryProtocol {
-  
-  private let service: CharactersAPIServiceProtocol
-  init(service: CharactersAPIServiceProtocol) {
-    self.service = service
+  private let api: CharactersAPIProtocol
+  init(api: CharactersAPIProtocol) {
+    self.api = api
   }
   
-  func getCharacters(for page: Int, filters: [Filter]) async throws -> [Character] {
-    let apiResponse = try await service.getCharacters(filters: filters.map(FilterDto.init))
+  func getCharacters(for page: Int, filter: Filter?) async throws -> [Character] {
+    let apiResponse = try await api.getCharacters(page: page, filter: filter.map(FilterDto.init))
     return apiResponse.results.map(Character.init)
   }
 }

@@ -9,7 +9,7 @@ class CharactersListViewModel {
   
   func didLoad() {
     Task {
-      let characters = try await repository.getCharacters(for: 1, filters: [])
+      let characters = try await repository.getCharacters(for: 1, filter: nil)
       await MainActor.run {
         self.characters = characters
         self.charactersDidChange?()

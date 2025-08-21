@@ -1,12 +1,6 @@
-//
-//  SceneDelegate.swift
-//  YassirChallenge
-//
-//  Created by Omar Ali on 21/8/25.
-//
-
 import UIKit
 import Networking
+import CharactersAPI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -18,8 +12,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     let window = UIWindow(windowScene: windowScene)
     let networkClient = NetworkClient(baseURL: URL(string: "https://rickandmortyapi.com/api")!)
-    let apiService = CharactersAPIService(networkClient: networkClient)
-    let repository = CharactersRepository(service: apiService)
+    let apiService = CharactersAPI(networkClient: networkClient)
+    let repository = CharactersRepository(api: apiService)
     let viewModel = CharactersListViewModel(repository: repository)
     let viewController = CharactersListViewController(viewModel: viewModel)
     let root = UINavigationController(rootViewController: viewController)
