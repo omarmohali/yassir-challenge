@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		13E8DCD02E576B0F0023C996 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = 13E8DCCF2E576B0F0023C996 /* Networking */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		13E8DC532E5739CC0023C996 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,8 @@
 		13E8DC3C2E5739CB0023C996 /* YassirChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YassirChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13E8DC522E5739CC0023C996 /* YassirChallengeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YassirChallengeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		13E8DC5C2E5739CD0023C996 /* YassirChallengeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = YassirChallengeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		13E8DC9B2E57663D0023C996 /* Networking */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Networking; path = ../Networking; sourceTree = SOURCE_ROOT; };
+		13E8DCCD2E576B080023C996 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -65,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13E8DCD02E576B0F0023C996 /* Networking in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,9 +95,11 @@
 		13E8DC332E5739CB0023C996 = {
 			isa = PBXGroup;
 			children = (
+				13E8DC9B2E57663D0023C996 /* Networking */,
 				13E8DC3E2E5739CB0023C996 /* YassirChallenge */,
 				13E8DC552E5739CC0023C996 /* YassirChallengeTests */,
 				13E8DC5F2E5739CD0023C996 /* YassirChallengeUITests */,
+				13E8DCCC2E576AFD0023C996 /* Frameworks */,
 				13E8DC3D2E5739CB0023C996 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -103,6 +112,14 @@
 				13E8DC5C2E5739CD0023C996 /* YassirChallengeUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		13E8DCCC2E576AFD0023C996 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				13E8DCCD2E576B080023C996 /* Accelerate.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -125,6 +142,7 @@
 			);
 			name = YassirChallenge;
 			packageProductDependencies = (
+				13E8DCCF2E576B0F0023C996 /* Networking */,
 			);
 			productName = YassirChallenge;
 			productReference = 13E8DC3C2E5739CB0023C996 /* YassirChallenge.app */;
@@ -569,6 +587,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		13E8DCCF2E576B0F0023C996 /* Networking */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Networking;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 13E8DC342E5739CB0023C996 /* Project object */;
 }

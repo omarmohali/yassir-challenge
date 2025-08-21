@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Networking
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -16,8 +17,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let windowScene = (scene as? UIWindowScene) else { return }
 
     let window = UIWindow(windowScene: windowScene)
-    let service = Service(baseURL: URL(string: "https://rickandmortyapi.com/api")!)
-    let apiService = CharactersAPIService(service: service)
+    let networkClient = NetworkClient(baseURL: URL(string: "https://rickandmortyapi.com/api")!)
+    let apiService = CharactersAPIService(networkClient: networkClient)
     let repository = CharactersRepository(service: apiService)
     let viewModel = CharactersListViewModel(repository: repository)
     let viewController = CharactersListViewController(viewModel: viewModel)

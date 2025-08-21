@@ -1,4 +1,5 @@
 import Foundation
+import Networking
 
 protocol CharactersAPIServiceProtocol {
   func getCharacters(filters: [FilterDto]) async throws -> CharactersResponseDto
@@ -6,27 +7,19 @@ protocol CharactersAPIServiceProtocol {
 
 class CharactersAPIService: CharactersAPIServiceProtocol {
   
-  private let service: Service
+  private let networkClient: NetworkClientProtocol
   
-  init(service: Service) {
-    self.service = service
+  init(networkClient: NetworkClientProtocol) {
+    self.networkClient = networkClient
   }
   
   func getCharacters(filters: [FilterDto] = []) async throws -> CharactersResponseDto {
+    
     let queryItems: [URLQueryItem] = [
 //        filters.status == nil ? nil : .init(name: "status", value: filters.status?.rawValue),
     ].compactMap { $0 }
     
-    var urlComponents = URLComponents(string: "\(service.baseURL.absoluteString)/character/")
-    if !queryItems.isEmpty {
-        urlComponents?.queryItems = queryItems
-    }
-    
-    guard let url = urlComponents?.url else { throw NSError() }
-    
-    let request = URLRequest(url: url)
-    
-    let (data, _) = try await service.session.data(for: request)
+    let data = try await networkClient.get(path: "/character/", queryItems: queryItems)
     let response = try JSONDecoder().decode(CharactersResponseDto.self, from: data)
     return response
   }
