@@ -14,7 +14,12 @@ public class CharactersUIClient {
     let viewModel = CharactersListViewModel(repository: repository)
     var nc: UINavigationController?
     let viewController = CharactersListViewController(viewModel: viewModel) { character in
-      nc?.pushViewController(UIHostingController(rootView: CharacterDetailsView(character: character)), animated: true)
+      let characterDetailsView = CharacterDetailsView(character: character) {
+        nc?.popViewController(animated: true)
+        nc?.setNavigationBarHidden(false, animated: true)
+      }
+      nc?.setNavigationBarHidden(true, animated: true)
+      nc?.pushViewController(UIHostingController(rootView: characterDetailsView), animated: true)
     }
     nc = UINavigationController(rootViewController: viewController)
     return nc!

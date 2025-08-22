@@ -37,8 +37,21 @@ extension Character {
       name: dto.name,
       imageUrl: dto.image,
       species: dto.species,
-      status: dto.status,
+      status: .init(dto.status),
       gender: dto.gender
     )
+  }
+}
+
+extension Character.Status {
+  init(_ string: String) {
+    switch string.lowercased() {
+    case "alive":
+      self = .alive
+    case "dead":
+      self = .dead
+    default:
+      self = .unknown
+    }
   }
 }

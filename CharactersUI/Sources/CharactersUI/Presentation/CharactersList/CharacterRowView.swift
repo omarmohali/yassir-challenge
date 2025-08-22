@@ -55,24 +55,24 @@ struct CharacterRowView: View {
   }
   
   private var backgroundColor: Color {
-    switch character.status.lowercased() {
-    case "alive":
-      Color(red: 0.85, green: 0.93, blue: 1.0)
-    case "dead":
-      Color(red: 1.0, green: 0.90, blue: 0.90)
-    default:
-      Color.white
+    switch character.status {
+    case .alive:
+      Color.CaracterCard.Status.alive
+    case .dead:
+      Color.CaracterCard.Status.dead
+    case .unknown:
+      Color.CaracterCard.Status.unknown
     }
   }
   
   private var borderColor: Color {
-    switch character.status.lowercased() {
-    case "alive":
-      Color(red: 0.85, green: 0.93, blue: 1.0)
-    case "dead":
-      Color(red: 1.0, green: 0.90, blue: 0.90)
-    default:
-      Color.gray.opacity(0.3)
+    switch character.status {
+    case .alive:
+      Color.CaracterCard.Border.alive
+    case .dead:
+      Color.CaracterCard.Border.dead
+    case .unknown:
+      Color.CaracterCard.Border.unknown
     }
   }
 }
@@ -114,7 +114,7 @@ struct CharacterRowView_Previews: PreviewProvider {
           name: "Rick Sanchez",
           imageUrl: URL(string: "https://rickandmortyapi.com/api/character/avatar/1.jpeg")!,
           species: "Human",
-          status: "Alive",
+          status: .alive,
           gender: "Male"
         )
       )
