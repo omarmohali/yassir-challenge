@@ -1,13 +1,16 @@
 import UIKit
 import SwiftUI
-import Networking
 import CharactersAPI
 
-class CharactersCoordinator {
-  func getCharactersController() -> UIViewController {
-    let networkClient = NetworkClient(baseURL: URL(string: "https://rickandmortyapi.com/api")!)
-    let apiService = CharactersAPI(networkClient: networkClient)
-    let repository = CharactersRepository(api: apiService)
+public class CharactersUIClient {
+  private let api: CharactersAPIProtocol
+  
+  public init(api: CharactersAPIProtocol) {
+    self.api = api
+  }
+  
+  @MainActor public func charactersUINavigationController() -> UINavigationController {
+    let repository = CharactersRepository(api: api)
     let viewModel = CharactersListViewModel(repository: repository)
     var nc: UINavigationController?
     let viewController = CharactersListViewController(viewModel: viewModel) { character in

@@ -1,6 +1,6 @@
 import Foundation
 
-struct Character: Hashable {
+struct Character: Hashable, Sendable {
   let id: Int
   let name: String
   let imageUrl: URL

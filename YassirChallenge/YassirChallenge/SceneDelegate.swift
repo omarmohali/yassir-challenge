@@ -1,20 +1,24 @@
 import UIKit
 import Networking
 import CharactersAPI
+import CharactersUI
 import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   var window: UIWindow?
-
+  private lazy var charactersUIClient = CharactersUIClient(
+    api: CharactersAPI(
+      networkClient: NetworkClient(baseURL: URL(string: "https://rickandmortyapi.com/api")!)
+    )
+  )
 
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     guard let windowScene = (scene as? UIWindowScene) else { return }
 
     let window = UIWindow(windowScene: windowScene)
     
-    let coordinator = CharactersCoordinator()
-    window.rootViewController = coordinator.getCharactersController()
+    window.rootViewController = charactersUIClient.charactersUINavigationController()
     self.window = window
     window.makeKeyAndVisible()
   }

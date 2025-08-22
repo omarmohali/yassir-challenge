@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		13E8DCD02E576B0F0023C996 /* Networking in Frameworks */ = {isa = PBXBuildFile; productRef = 13E8DCCF2E576B0F0023C996 /* Networking */; };
 		13E8DD032E5783280023C996 /* CharactersAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 13E8DD022E5783280023C996 /* CharactersAPI */; };
+		13E8DD0D2E588FAC0023C996 /* CharactersUI in Frameworks */ = {isa = PBXBuildFile; productRef = 13E8DD0C2E588FAB0023C996 /* CharactersUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +36,7 @@
 		13E8DC9B2E57663D0023C996 /* Networking */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Networking; path = ../Networking; sourceTree = SOURCE_ROOT; };
 		13E8DCCD2E576B080023C996 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		13E8DD012E5782360023C996 /* CharactersAPI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CharactersAPI; path = ../CharactersAPI; sourceTree = SOURCE_ROOT; };
+		13E8DD0B2E588A2A0023C996 /* CharactersUI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CharactersUI; path = ../CharactersUI; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -74,6 +76,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13E8DCD02E576B0F0023C996 /* Networking in Frameworks */,
+				13E8DD0D2E588FAC0023C996 /* CharactersUI in Frameworks */,
 				13E8DD032E5783280023C996 /* CharactersAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -98,6 +101,7 @@
 		13E8DC332E5739CB0023C996 = {
 			isa = PBXGroup;
 			children = (
+				13E8DD0B2E588A2A0023C996 /* CharactersUI */,
 				13E8DD012E5782360023C996 /* CharactersAPI */,
 				13E8DC9B2E57663D0023C996 /* Networking */,
 				13E8DC3E2E5739CB0023C996 /* YassirChallenge */,
@@ -148,6 +152,7 @@
 			packageProductDependencies = (
 				13E8DCCF2E576B0F0023C996 /* Networking */,
 				13E8DD022E5783280023C996 /* CharactersAPI */,
+				13E8DD0C2E588FAB0023C996 /* CharactersUI */,
 			);
 			productName = YassirChallenge;
 			productReference = 13E8DC3C2E5739CB0023C996 /* YassirChallenge.app */;
@@ -320,6 +325,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -348,6 +354,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -601,6 +608,10 @@
 		13E8DD022E5783280023C996 /* CharactersAPI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CharactersAPI;
+		};
+		13E8DD0C2E588FAB0023C996 /* CharactersUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CharactersUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

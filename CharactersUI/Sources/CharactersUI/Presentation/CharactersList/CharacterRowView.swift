@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct CharacterView: View {
+struct CharacterRowView: View {
   let character: Character
   
   var body: some View {
@@ -39,10 +39,10 @@ struct CharacterView: View {
 }
 
 class CharacterTableViewCell: UITableViewCell {
-    private var hostingController: UIHostingController<CharacterView>?
+    private var hostingController: UIHostingController<CharacterRowView>?
 
     func set(character: Character, parent: UIViewController) {
-        let rootView = CharacterView(character: character)
+        let rootView = CharacterRowView(character: character)
 
         if let hostingController = hostingController {
             // Just update SwiftUI view

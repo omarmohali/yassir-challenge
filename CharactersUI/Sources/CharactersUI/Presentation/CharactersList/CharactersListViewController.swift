@@ -26,7 +26,9 @@ class CharactersListViewController: UITableViewController {
     navigationController?.navigationBar.prefersLargeTitles = true
     navigationItem.largeTitleDisplayMode = .always
     viewModel.charactersDidChange = { [weak self] scrollToTop in
-      self?.applySnapshot(scrollToTop: scrollToTop)
+      Task { @MainActor in
+        self?.applySnapshot(scrollToTop: scrollToTop)
+      }
     }
     
     tableView.register(CharacterTableViewCell.self, forCellReuseIdentifier: "CharacterCell")
