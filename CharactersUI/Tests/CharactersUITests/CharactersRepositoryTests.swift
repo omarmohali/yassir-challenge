@@ -40,7 +40,7 @@ class CharactersAPITests: XCTestCase {
           name: "Rick Sanchez",
           imageUrl: URL(string: "https://www.image.com/rick.png")!,
           species: "Human",
-          status: "Alive",
+          status: .alive,
           gender: "Male"
         ),
         .init(
@@ -48,7 +48,7 @@ class CharactersAPITests: XCTestCase {
           name: "Morty Smith",
           imageUrl: URL(string: "https://www.image.com/morty.png")!,
           species: "Human",
-          status: "Alive",
+          status: .alive,
           gender: "Male"
         )
       ]
