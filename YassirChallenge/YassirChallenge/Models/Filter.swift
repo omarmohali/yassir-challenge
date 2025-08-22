@@ -1,4 +1,4 @@
-enum Filter {
+enum Filter: CaseIterable {
   case alive
   case dead
   case unknown

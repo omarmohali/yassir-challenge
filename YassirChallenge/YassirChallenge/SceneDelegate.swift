@@ -1,6 +1,7 @@
 import UIKit
 import Networking
 import CharactersAPI
+import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -11,13 +12,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let windowScene = (scene as? UIWindowScene) else { return }
 
     let window = UIWindow(windowScene: windowScene)
-    let networkClient = NetworkClient(baseURL: URL(string: "https://rickandmortyapi.com/api")!)
-    let apiService = CharactersAPI(networkClient: networkClient)
-    let repository = CharactersRepository(api: apiService)
-    let viewModel = CharactersListViewModel(repository: repository)
-    let viewController = CharactersListViewController(viewModel: viewModel)
-    let root = UINavigationController(rootViewController: viewController)
-    window.rootViewController = root
+    
+    let coordinator = CharactersCoordinator()
+    window.rootViewController = coordinator.getCharactersController()
     self.window = window
     window.makeKeyAndVisible()
   }
