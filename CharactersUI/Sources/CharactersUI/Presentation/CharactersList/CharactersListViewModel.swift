@@ -1,12 +1,14 @@
 import SwiftUI
 
-class CharactersListViewModel {
+class CharactersListViewModel: ObservableObject {
   private let repository: CharactersRepositoryProtocol
   
   var characters: [Character] = []
   var filter: Filter?
   var charactersDidChange: (@Sendable (Bool) -> Void)?
-  var page = 1
+  private var page = 1
+  @Published var isLoading = false
+  
   init(repository: CharactersRepositoryProtocol) {
     self.repository = repository
   }
@@ -29,43 +31,12 @@ class CharactersListViewModel {
     loadCharacters()
   }
   
-//  @MainActor
-//  private func loadCharacters() {
-//    Task {
-//      let characters = try await repository.getCharacters(for: 1, filter: nil)
-//    }
-//  }
-//  private func loadCharacters() {
-//      Task {
-//          // Step 1: Read main-actor-isolated values safely
-//          let (currentPage, currentFilter) = await MainActor.run {
-//              (self.page, self.filter)
-//          }
-//
-//          do {
-//              // Step 2: Perform async repository call off the main actor
-//              let newCharacters = try await repository.getCharacters(for: currentPage, filter: currentFilter)
-//              
-//              // Step 3: Update main-actor-isolated state safely
-//              await MainActor.run {
-//                  if currentPage == 1 {
-//                      self.characters = newCharacters
-//                      self.charactersDidChange?(true)
-//                  } else {
-//                      self.characters.append(contentsOf: newCharacters)
-//                      self.charactersDidChange?(false)
-//                  }
-//              }
-//          } catch {
-//              print("Failed to load characters:", error)
-//          }
-//      }
-//  }
-  
   @MainActor
   private func loadCharacters() {
     Task {
+      isLoading = true
       let characters = try await repository.getCharacters(for: page, filter: filter)
+      isLoading = false
       await MainActor.run {
         if page == 1 {
           self.characters = characters
