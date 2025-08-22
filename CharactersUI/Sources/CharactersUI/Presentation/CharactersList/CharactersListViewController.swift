@@ -32,11 +32,11 @@ class CharactersListViewController: UITableViewController {
     }
     
     tableView.register(CharacterTableViewCell.self, forCellReuseIdentifier: "CharacterCell")
-    tableView.rowHeight = UITableView.automaticDimension
-    tableView.estimatedRowHeight = 60
+    tableView.separatorStyle = .none
     
     dataSource = UITableViewDiffableDataSource<Section, Character>(tableView: tableView) { tableView, indexPath, character in
       let cell = tableView.dequeueReusableCell(withIdentifier: "CharacterCell", for: indexPath) as! CharacterTableViewCell
+      cell.selectionStyle = .none
       cell.set(character: character, parent: self)
       return cell
     }
