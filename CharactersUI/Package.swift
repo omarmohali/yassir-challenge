@@ -26,7 +26,7 @@ let package = Package(
         ),
         .testTarget(
             name: "CharactersUITests",
-            dependencies: ["CharactersUI"]
+            dependencies: ["CharactersUI", "CharactersAPI"]
         ),
     ]
 )
