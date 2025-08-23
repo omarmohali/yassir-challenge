@@ -17,6 +17,35 @@ class CharactersRepository: CharactersRepositoryProtocol {
   }
 }
 
+protocol CharactersLoaderProtocol {
+  @MainActor
+  func getCharacters(for page: Int, filter: Filter?, completion: @escaping (Result<[Character], any Error>) -> Void)
+}
+
+class CharactersLoader: CharactersLoaderProtocol {
+  private let api: CharactersAPIProtocol
+  init(api: CharactersAPIProtocol) {
+    self.api = api
+  }
+  
+  @MainActor
+  func getCharacters(for page: Int, filter: Filter?, completion: @escaping (Result<[Character], any Error>) -> Void) {
+    Task {
+      let result: Result<[Character], any Error>
+      do {
+        let apiResponse = try await api.getCharacters(page: page, filter: filter.map(FilterDto.init))
+        result = .success(apiResponse.results.map(Character.init))
+      } catch {
+        result = .failure(error)
+      }
+      
+      await MainActor.run {
+        completion(result)
+      }
+    }
+  }
+}
+
 extension FilterDto {
   init(filter: Filter) {
     switch filter {

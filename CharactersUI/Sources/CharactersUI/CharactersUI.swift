@@ -10,8 +10,8 @@ public class CharactersUIClient {
   }
   
   @MainActor public func charactersUINavigationController() -> UINavigationController {
-    let repository = CharactersRepository(api: api)
-    let viewModel = CharactersListViewModel(repository: repository)
+    let loader = CharactersLoader(api: api)
+    let viewModel = CharactersListViewModel(charactersLoader: loader)
     var nc: UINavigationController?
     let viewController = CharactersListViewController(viewModel: viewModel) { character in
       let characterDetailsView = CharacterDetailsView(character: character) {

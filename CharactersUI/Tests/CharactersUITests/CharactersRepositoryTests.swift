@@ -2,10 +2,11 @@ import XCTest
 @testable import CharactersUI
 @testable import CharactersAPI
 
-class CharactersAPITests: XCTestCase {
+final class CharactersLoaderTests: XCTestCase {
   
-  func testGetCharactersReturnsCorrectCharactersWhenAPISucceeds() async throws {
-    let (sut, charactersApi) = makeSUT()
+  @MainActor
+  func testGetCharactersReturnsCorrectCharactersWhenAPISucceeds() async {
+    let (sut, api) = makeSUT()
     
     let sampleResponse = CharactersResponseDto(
       results: [
@@ -28,10 +29,20 @@ class CharactersAPITests: XCTestCase {
       ]
     )
     
-    charactersApi.result = .success(sampleResponse)
-
-    let characters = try await sut.getCharacters(for: 1, filter: .alive)
-
+    api.result = .success(sampleResponse)
+    
+    let expectation = expectation(description: "Completion called")
+    var received: Result<[Character], Error>?
+    
+    sut.getCharacters(for: 1, filter: .alive) { result in
+      received = result
+      expectation.fulfill()
+    }
+    
+    await fulfillment(of: [expectation], timeout: 1)
+    
+    let characters = try? received?.get()
+    
     XCTAssertEqual(
       characters,
       [
@@ -53,51 +64,59 @@ class CharactersAPITests: XCTestCase {
         )
       ]
     )
-
-    XCTAssertEqual(charactersApi.calls.count, 1)
-    XCTAssertEqual(charactersApi.calls.first?.page, 1)
-    XCTAssertEqual(charactersApi.calls.first?.filter, .alive)
+    
+    XCTAssertEqual(api.calls.count, 1)
+    XCTAssertEqual(api.calls.first?.page, 1)
+    XCTAssertEqual(api.calls.first?.filter, .alive)
   }
   
-  func testGetCharactersThrowsErrorAPIFails() async throws {
-    let (sut, networkClient) = makeSUT()
-    
+  @MainActor
+  func testGetCharactersReturnsFailureWhenAPIFails() async {
+    let (sut, api) = makeSUT()
     let sampleError = AnyError()
-    networkClient.result = .failure(sampleError)
-
-    do {
-      let _ = try await sut.getCharacters(for: 1, filter: nil)
-      XCTFail("Should throw error")
-    } catch {
-      XCTAssertEqual(error as? AnyError, AnyError())
+    api.result = .failure(sampleError)
+    
+    let expectation = expectation(description: "Completion called")
+    var received: Result<[Character], Error>?
+    
+    sut.getCharacters(for: 1, filter: nil) { result in
+      received = result
+      expectation.fulfill()
+    }
+    
+    await fulfillment(of: [expectation], timeout: 1)
+    
+    switch received {
+    case let .failure(error as AnyError)?:
+      XCTAssertEqual(error, AnyError())
+    default:
+      XCTFail("Expected failure with AnyError")
     }
   }
   
-  
-  func makeSUT() -> (CharactersRepository, CharactersAPIMock)  {
-    let charactersApi = CharactersAPIMock()
-    let sut = CharactersRepository(api: charactersApi)
-    return (sut, charactersApi)
+  private func makeSUT() -> (CharactersLoader, CharactersAPIMock) {
+    let api = CharactersAPIMock()
+    let sut = CharactersLoader(api: api)
+    return (sut, api)
   }
 }
 
-class CharactersAPIMock: CharactersAPIProtocol {
+final class CharactersAPIMock: CharactersAPIProtocol {
   var calls = [(page: Int, filter: FilterDto?)]()
   var result: Result<CharactersResponseDto, Error>?
+  
   func getCharacters(page: Int, filter: FilterDto?) async throws -> CharactersResponseDto {
     calls.append((page: page, filter: filter))
-
-    guard let result = result else {
-      fatalError("result should be set before calling this function")
+    
+    guard let result else {
+      fatalError("Result must be set before calling")
     }
     
     switch result {
-    case let .success(response):
-      return response
-    case let .failure(error):
-      throw error
+    case let .success(response): return response
+    case let .failure(error): throw error
     }
   }
 }
 
-private struct AnyError: Error, Equatable { }
+private struct AnyError: Error, Equatable {}

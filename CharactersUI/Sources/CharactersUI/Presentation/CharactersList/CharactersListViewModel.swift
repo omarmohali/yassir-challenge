@@ -1,14 +1,11 @@
-import SwiftUI
-
 class CharactersListViewModel {
-  
-  enum State {
+  enum State: Equatable {
     case loading
     case loaded([Character])
     case error(message: String)
   }
   
-  private let repository: CharactersRepositoryProtocol
+  private let charactersLoader: CharactersLoaderProtocol
   
   var state: State = .loading
   var filter: Filter?
@@ -16,8 +13,8 @@ class CharactersListViewModel {
   
   private var page = 1
   
-  init(repository: CharactersRepositoryProtocol) {
-    self.repository = repository
+  init(charactersLoader: CharactersLoaderProtocol) {
+    self.charactersLoader = charactersLoader
   }
   
   @MainActor
@@ -45,24 +42,22 @@ class CharactersListViewModel {
     loadCharacters()
   }
   
-  @MainActor
-  private func loadCharacters() {
-    Task {
-      do {
-        let characters = try await repository.getCharacters(for: page, filter: filter)
-        await MainActor.run {
-          if page == 1 {
-            self.state = .loaded(characters)
-            self.stateDidChange?(true)
-          } else {
-            guard case let .loaded(oldCharacters) = self.state else { return }
-            var newCharacters = oldCharacters
-            newCharacters.append(contentsOf: characters)
-            self.state = .loaded(newCharacters)
-            self.stateDidChange?(false)
-          }
+  @MainActor private func loadCharacters() {
+    charactersLoader.getCharacters(for: page, filter: filter) { [weak self] result in
+      guard let self = self else { return }
+      switch result {
+      case let .success(characters):
+        if page == 1 {
+          self.state = .loaded(characters)
+          self.stateDidChange?(true)
+        } else {
+          guard case let .loaded(oldCharacters) = self.state else { return }
+          var newCharacters = oldCharacters
+          newCharacters.append(contentsOf: characters)
+          self.state = .loaded(newCharacters)
+          self.stateDidChange?(false)
         }
-      } catch {
+      case .failure:
         state = .error(message: "Something went wrong")
         self.stateDidChange?(false)
       }
