@@ -1,6 +1,6 @@
 import SwiftUI
 
-class CharactersListViewModel: ObservableObject {
+class CharactersListViewModel {
   
   enum State {
     case loading
@@ -11,9 +11,7 @@ class CharactersListViewModel: ObservableObject {
   private let repository: CharactersRepositoryProtocol
   
   var state: State = .loading
-//  var characters: [Character] = []
   var filter: Filter?
-//  var charactersDidChange: ((Bool) -> Void)?
   var stateDidChange: ((Bool) -> Void)?
   
   private var page = 1
