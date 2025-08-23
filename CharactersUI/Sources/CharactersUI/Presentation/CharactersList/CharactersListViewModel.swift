@@ -1,13 +1,22 @@
 import SwiftUI
 
 class CharactersListViewModel: ObservableObject {
+  
+  enum State {
+    case loading
+    case loaded([Character])
+    case error(message: String)
+  }
+  
   private let repository: CharactersRepositoryProtocol
   
-  var characters: [Character] = []
+  var state: State = .loading
+//  var characters: [Character] = []
   var filter: Filter?
-  var charactersDidChange: (@Sendable (Bool) -> Void)?
+//  var charactersDidChange: ((Bool) -> Void)?
+  var stateDidChange: ((Bool) -> Void)?
+  
   private var page = 1
-  @Published var isLoading = false
   
   init(repository: CharactersRepositoryProtocol) {
     self.repository = repository
@@ -32,20 +41,32 @@ class CharactersListViewModel: ObservableObject {
   }
   
   @MainActor
+  func retry() {
+    state = .loading
+    stateDidChange?(false)
+    loadCharacters()
+  }
+  
+  @MainActor
   private func loadCharacters() {
     Task {
-      isLoading = true
-      let characters = try await repository.getCharacters(for: page, filter: filter)
-      isLoading = false
-      await MainActor.run {
-        if page == 1 {
-          self.characters = characters
-          self.charactersDidChange?(true)
-        } else {
-          self.characters.append(contentsOf: characters)
-          self.charactersDidChange?(false)
+      do {
+        let characters = try await repository.getCharacters(for: page, filter: filter)
+        await MainActor.run {
+          if page == 1 {
+            self.state = .loaded(characters)
+            self.stateDidChange?(true)
+          } else {
+            guard case let .loaded(oldCharacters) = self.state else { return }
+            var newCharacters = oldCharacters
+            newCharacters.append(contentsOf: characters)
+            self.state = .loaded(newCharacters)
+            self.stateDidChange?(false)
+          }
         }
-        
+      } catch {
+        state = .error(message: "Something went wrong")
+        self.stateDidChange?(false)
       }
     }
   }

@@ -25,9 +25,9 @@ class CharactersListViewController: UITableViewController {
     navigationItem.title = "Characters"
     navigationController?.navigationBar.prefersLargeTitles = true
     navigationItem.largeTitleDisplayMode = .always
-    viewModel.charactersDidChange = { [weak self] scrollToTop in
+    viewModel.stateDidChange = { [weak self] scrollToTop in
       Task { @MainActor in
-        self?.applySnapshot(scrollToTop: scrollToTop)
+        self?.bindView(scrollToTop: scrollToTop)
       }
     }
     
@@ -40,7 +40,7 @@ class CharactersListViewController: UITableViewController {
       cell.set(character: character, parent: self)
       return cell
     }
-    
+    bindView(scrollToTop: false)
     viewModel.didLoad()
   }
   
@@ -55,7 +55,7 @@ class CharactersListViewController: UITableViewController {
   }
   
   override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-    if indexPath.row == (viewModel.characters.count - 1) {
+    if indexPath.row == (viewModel.state.characters.count - 1) {
       viewModel.loadMore()
     }
   }
@@ -67,20 +67,54 @@ class CharactersListViewController: UITableViewController {
     return UIHostingController(rootView: filtersView).view
   }
   
+  private func bindView(scrollToTop: Bool) {
+    switch viewModel.state {
+    case .loaded:
+      tableView.backgroundView = nil
+      applySnapshot(scrollToTop: scrollToTop)
+    case .loading:
+      setLoadingView()
+    case let .error(message):
+      setErrorView(message: message)
+    }
+  }
+  
   private func applySnapshot(scrollToTop: Bool) {
     var snapshot = NSDiffableDataSourceSnapshot<Section, Character>()
     snapshot.appendSections([.main])
-    snapshot.appendItems(viewModel.characters, toSection: .main)
+    snapshot.appendItems(viewModel.state.characters, toSection: .main)
         
     dataSource.apply(snapshot, animatingDifferences: !scrollToTop) { [weak self] in
-        guard scrollToTop, let self = self else { return }
-        if !self.viewModel.characters.isEmpty {
+      guard scrollToTop, let self = self else { return }
+      if !self.viewModel.state.characters.isEmpty {
             self.tableView.scrollToRow(
                 at: IndexPath(row: 0, section: 0),
                 at: .top,
                 animated: false
             )
         }
+    }
+  }
+  
+  private func setLoadingView() {
+    self.tableView.backgroundView = UIHostingController(rootView: ProgressView()).view
+  }
+  
+  private func setErrorView(message: String) {
+    let errorView = ErrorView(message: message) { [weak self] in
+      self?.viewModel.retry()
+    }
+    tableView.backgroundView = UIHostingController(rootView: errorView).view
+  }
+}
+
+extension CharactersListViewModel.State {
+  var characters: [Character] {
+    switch self {
+    case let .loaded(characters):
+      characters
+    case .error, .loading:
+      []
     }
   }
 }
