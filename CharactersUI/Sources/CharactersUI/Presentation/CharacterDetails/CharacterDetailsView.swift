@@ -71,11 +71,11 @@ struct CharacterDetailsView: View {
   private func statusText(_ status: Character.Status) -> String {
     switch status {
     case .alive:
-      String.CharacterDetails.Status.alive
+      LocalizedString.CharacterDetails.Status.alive
     case .dead:
-      String.CharacterDetails.Status.dead
+      LocalizedString.CharacterDetails.Status.dead
     case .unknown:
-      String.CharacterDetails.Status.unknown
+      LocalizedString.CharacterDetails.Status.unknown
     }
   }
   

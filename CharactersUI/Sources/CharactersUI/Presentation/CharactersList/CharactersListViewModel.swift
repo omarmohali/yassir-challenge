@@ -58,7 +58,7 @@ class CharactersListViewModel {
           self.stateDidChange?(false)
         }
       case .failure:
-        state = .error(message: "Something went wrong")
+        state = .error(message: LocalizedString.Generic.somethingWentWrong)
         self.stateDidChange?(false)
       }
     }

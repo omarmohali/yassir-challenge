@@ -22,7 +22,10 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "CharactersUI",
-            dependencies: ["CharactersAPI"]
+            dependencies: ["CharactersAPI"],
+            resources: [
+              .process("Resources")
+            ]
         ),
         .testTarget(
             name: "CharactersUITests",
