@@ -1,22 +1,6 @@
 import Foundation
 import CharactersAPI
 
-protocol CharactersRepositoryProtocol {
-  func getCharacters(for page: Int, filter: Filter?) async throws -> [Character]
-}
-
-class CharactersRepository: CharactersRepositoryProtocol {
-  private let api: CharactersAPIProtocol
-  init(api: CharactersAPIProtocol) {
-    self.api = api
-  }
-  
-  func getCharacters(for page: Int, filter: Filter?) async throws -> [Character] {
-    let apiResponse = try await api.getCharacters(page: page, filter: filter.map(FilterDto.init))
-    return apiResponse.results.map(Character.init)
-  }
-}
-
 protocol CharactersLoaderProtocol {
   @MainActor
   func getCharacters(for page: Int, filter: Filter?, completion: @escaping (Result<[Character], any Error>) -> Void)
