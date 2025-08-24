@@ -1,15 +1,20 @@
 class CharactersListViewModel {
   enum State: Equatable {
     case loading
-    case loaded([Character])
+    case loaded([Character], isFirstPage: Bool)
     case error(message: String)
   }
   
   private let charactersLoader: CharactersLoaderProtocol
   
-  var state: State = .loading
-  var filter: Filter?
-  var stateDidChange: ((Bool) -> Void)?
+  private(set) var state: State = .loading {
+    didSet {
+      stateDidChange?()
+    }
+  }
+  
+  private var filter: Filter?
+  var stateDidChange: (() -> Void)?
   
   private var page = 1
   
@@ -38,7 +43,6 @@ class CharactersListViewModel {
   @MainActor
   func retry() {
     state = .loading
-    stateDidChange?(false)
     loadCharacters()
   }
   
@@ -48,18 +52,15 @@ class CharactersListViewModel {
       switch result {
       case let .success(characters):
         if page == 1 {
-          self.state = .loaded(characters)
-          self.stateDidChange?(true)
+          self.state = .loaded(characters, isFirstPage: true)
         } else {
-          guard case let .loaded(oldCharacters) = self.state else { return }
+          guard case let .loaded(oldCharacters, _) = self.state else { return }
           var newCharacters = oldCharacters
           newCharacters.append(contentsOf: characters)
-          self.state = .loaded(newCharacters)
-          self.stateDidChange?(false)
+          self.state = .loaded(newCharacters, isFirstPage: false)
         }
       case .failure:
         state = .error(message: LocalizedString.Generic.somethingWentWrong)
-        self.stateDidChange?(false)
       }
     }
   }

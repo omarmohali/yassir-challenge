@@ -2,6 +2,13 @@ import XCTest
 @testable import CharactersUI
 
 final class CharactersListViewModelTests: XCTestCase {
+  
+  @MainActor
+  func testInitialState() {
+    let (sut, _) = makeSUT()
+    XCTAssertEqual(sut.state, .loading)
+  }
+  
   @MainActor
   func testInitialLoadSuccess() {
     let (sut, loader) = makeSUT()
@@ -15,19 +22,18 @@ final class CharactersListViewModelTests: XCTestCase {
         gender: "Male"
       )
     ]
+    
     loader.result = .success(characters)
     
     let expectation = expectation(description: "State change called")
-    sut.stateDidChange = { scrollToTop in
-      XCTAssertTrue(scrollToTop)
+    sut.stateDidChange = {
       expectation.fulfill()
     }
     
     sut.didLoad()
     
-    XCTAssertEqual(loader.calls.first?.page, 1)
-    XCTAssertNil(loader.calls.first?.filter)
-    XCTAssertEqual(sut.state, .loaded(characters))
+    XCTAssertEqual(loader.calls, [.init(page: 1, filter: nil)])
+    XCTAssertEqual(sut.state, .loaded(characters, isFirstPage: true))
     
     waitForExpectations(timeout: 1)
   }
@@ -38,16 +44,14 @@ final class CharactersListViewModelTests: XCTestCase {
     loader.result = .failure(NSError(domain: "", code: 0))
     
     let expectation = expectation(description: "State change called")
-    sut.stateDidChange = { scrollToTop in
-      XCTAssertFalse(scrollToTop)
+    sut.stateDidChange = {
       expectation.fulfill()
     }
     
     sut.didLoad()
     
-    XCTAssertEqual(loader.calls.first?.page, 1)
-    XCTAssertNil(loader.calls.first?.filter)
-    XCTAssertEqual(sut.state, .error(message: "Something went wrong"))
+    XCTAssertEqual(loader.calls, [.init(page: 1, filter: nil)])
+    XCTAssertEqual(sut.state, .error(message: LocalizedString.Generic.somethingWentWrong))
     
     waitForExpectations(timeout: 1)
   }
@@ -68,15 +72,13 @@ final class CharactersListViewModelTests: XCTestCase {
     loader.result = .success(firstPage)
     
     let initialExpectation = expectation(description: "Initial load")
-    sut.stateDidChange = { scrollToTop in
-      XCTAssertTrue(scrollToTop)
+    sut.stateDidChange = {
       initialExpectation.fulfill()
     }
     
     sut.didLoad()
-    XCTAssertEqual(loader.calls.first?.page, 1)
-    XCTAssertNil(loader.calls.first?.filter)
-    XCTAssertEqual(sut.state, .loaded(firstPage))
+    XCTAssertEqual(loader.calls, [.init(page: 1, filter: nil)])
+    XCTAssertEqual(sut.state, .loaded(firstPage, isFirstPage: true))
     waitForExpectations(timeout: 1)
     
     let secondPage = [
@@ -92,8 +94,7 @@ final class CharactersListViewModelTests: XCTestCase {
     loader.result = .success(secondPage)
     
     let loadMoreExpectation = expectation(description: "Load more")
-    sut.stateDidChange = { scrollToTop in
-      XCTAssertFalse(scrollToTop)
+    sut.stateDidChange = {
       loadMoreExpectation.fulfill()
     }
     
@@ -101,7 +102,10 @@ final class CharactersListViewModelTests: XCTestCase {
     
     XCTAssertEqual(loader.calls[1].page, 2)
     XCTAssertNil(loader.calls[1].filter)
-    XCTAssertEqual(sut.state, .loaded(firstPage + secondPage))
+    XCTAssertEqual(loader.calls, [
+      .init(page: 1, filter: nil), .init(page: 2, filter: nil)
+    ])
+    XCTAssertEqual(sut.state, .loaded(firstPage + secondPage, isFirstPage: false))
     waitForExpectations(timeout: 1)
   }
   
@@ -121,16 +125,14 @@ final class CharactersListViewModelTests: XCTestCase {
     loader.result = .success(characters)
     
     let expectation = expectation(description: "Filter applied")
-    sut.stateDidChange = { scrollToTop in
-      XCTAssertTrue(scrollToTop)
+    sut.stateDidChange = {
       expectation.fulfill()
     }
     
     sut.applyFilter(filter: .alive)
     
-    XCTAssertEqual(loader.calls.first?.page, 1)
-    XCTAssertEqual(loader.calls.first?.filter, .alive)
-    XCTAssertEqual(sut.state, .loaded(characters))
+    XCTAssertEqual(loader.calls, [.init(page: 1, filter: .alive)])
+    XCTAssertEqual(sut.state, .loaded(characters, isFirstPage: true))
     
     waitForExpectations(timeout: 1)
   }
@@ -141,16 +143,14 @@ final class CharactersListViewModelTests: XCTestCase {
     loader.result = .failure(NSError(domain: "", code: 0))
     
     let errorExpectation = expectation(description: "Error state")
-    sut.stateDidChange = { scrollToTop in
-      XCTAssertFalse(scrollToTop)
+    sut.stateDidChange = {
       errorExpectation.fulfill()
     }
     
     sut.didLoad()
-    XCTAssertEqual(loader.calls.first?.page, 1)
-    XCTAssertNil(loader.calls.first?.filter)
-    XCTAssertEqual(sut.state, .error(message: "Something went wrong"))
-    waitForExpectations(timeout: 1)
+    XCTAssertEqual(loader.calls, [.init(page: 1, filter: nil)])
+    XCTAssertEqual(sut.state, .error(message: LocalizedString.Generic.somethingWentWrong))
+    wait(for: [errorExpectation], timeout: 1)
     
     let characters = [
       Character(
@@ -167,24 +167,22 @@ final class CharactersListViewModelTests: XCTestCase {
     
     let retryExpectation = expectation(description: "Retry loads successfully")
     retryExpectation.expectedFulfillmentCount = 2
-    
-    var callCount = 0
-    sut.stateDidChange = { scrollToTop in
-      callCount += 1
-      if callCount == 1 {
-        XCTAssertFalse(scrollToTop)
-      } else if callCount == 2 {
-        XCTAssertTrue(scrollToTop)
+    var didChangeToLoading = false
+    sut.stateDidChange = {
+      if !didChangeToLoading {
+        XCTAssertEqual(sut.state, .loading)
+        didChangeToLoading = true
       }
       retryExpectation.fulfill()
     }
     
     sut.retry()
     
-    XCTAssertEqual(loader.calls.first?.page, 1)
-    XCTAssertNil(loader.calls.first?.filter)
-    XCTAssertEqual(sut.state, .loaded(characters))
-    waitForExpectations(timeout: 1)
+    XCTAssertEqual(loader.calls, [
+      .init(page: 1, filter: nil), .init(page: 1, filter: nil)
+    ])
+    XCTAssertEqual(sut.state, .loaded(characters, isFirstPage: true))
+    wait(for: [retryExpectation], timeout: 1)
   }
   
   @MainActor
@@ -196,11 +194,16 @@ final class CharactersListViewModelTests: XCTestCase {
 }
 
 final class MockCharactersLoader: CharactersLoaderProtocol {
-  var calls = [(page: Int, filter: Filter?)]()
+  struct CharactersLoaderCall: Equatable {
+    let page: Int
+    let filter: Filter?
+  }
+  
+  var calls = [CharactersLoaderCall]()
   var result: Result<[Character], Error>?
   
   func getCharacters(for page: Int, filter: Filter?, completion: @escaping (Result<[Character], Error>) -> Void) {
-    calls.append((page: page, filter: filter))
+    calls.append(.init(page: page, filter: filter))
     guard let result else {
       fatalError("Result must be set before calling")
     }

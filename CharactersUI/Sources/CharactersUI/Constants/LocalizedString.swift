@@ -5,6 +5,11 @@ func L10n(_ key: String) -> String {
 }
 
 enum LocalizedString {
+  enum CharactersList {
+    enum Navigation {
+      static let title = L10n("characters_list.navigation.title")
+    }
+  }
   enum CharacterDetails {
     enum Status {
       static let alive = L10n("character_details.status.alive")

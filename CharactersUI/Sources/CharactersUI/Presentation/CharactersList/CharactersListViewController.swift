@@ -6,6 +6,7 @@ class CharactersListViewController: UITableViewController {
       case main
   }
   
+  private static let cellIdentifier = "CharacterCell"
   private let viewModel: CharactersListViewModel
   private let didSelectCharacter: (Character) -> Void
   private var dataSource: UITableViewDiffableDataSource<Section, Character>!
@@ -22,25 +23,25 @@ class CharactersListViewController: UITableViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    navigationItem.title = "Characters"
+    navigationItem.title = LocalizedString.CharactersList.Navigation.title
     navigationController?.navigationBar.prefersLargeTitles = true
     navigationItem.largeTitleDisplayMode = .always
-    viewModel.stateDidChange = { [weak self] scrollToTop in
+    viewModel.stateDidChange = { [weak self] in
       Task { @MainActor in
-        self?.bindView(scrollToTop: scrollToTop)
+        self?.bindView()
       }
     }
     
-    tableView.register(CharacterTableViewCell.self, forCellReuseIdentifier: "CharacterCell")
+    tableView.register(CharacterTableViewCell.self, forCellReuseIdentifier: Self.cellIdentifier)
     tableView.separatorStyle = .none
     
     dataSource = UITableViewDiffableDataSource<Section, Character>(tableView: tableView) { tableView, indexPath, character in
-      let cell = tableView.dequeueReusableCell(withIdentifier: "CharacterCell", for: indexPath) as! CharacterTableViewCell
+      let cell = tableView.dequeueReusableCell(withIdentifier: Self.cellIdentifier, for: indexPath) as! CharacterTableViewCell
       cell.selectionStyle = .none
       cell.set(character: character, parent: self)
       return cell
     }
-    bindView(scrollToTop: false)
+    bindView()
     viewModel.didLoad()
   }
   
@@ -67,11 +68,11 @@ class CharactersListViewController: UITableViewController {
     return UIHostingController(rootView: filtersView).view
   }
   
-  private func bindView(scrollToTop: Bool) {
+  private func bindView() {
     switch viewModel.state {
-    case .loaded:
+    case let .loaded(characters, isFirstPage):
       tableView.backgroundView = nil
-      applySnapshot(scrollToTop: scrollToTop)
+      applySnapshot(characters: characters, scrollToTop: isFirstPage)
     case .loading:
       setLoadingView()
     case let .error(message):
@@ -79,14 +80,14 @@ class CharactersListViewController: UITableViewController {
     }
   }
   
-  private func applySnapshot(scrollToTop: Bool) {
+  private func applySnapshot(characters: [Character], scrollToTop: Bool) {
     var snapshot = NSDiffableDataSourceSnapshot<Section, Character>()
     snapshot.appendSections([.main])
-    snapshot.appendItems(viewModel.state.characters, toSection: .main)
+    snapshot.appendItems(characters, toSection: .main)
         
     dataSource.apply(snapshot, animatingDifferences: !scrollToTop) { [weak self] in
       guard scrollToTop, let self = self else { return }
-      if !self.viewModel.state.characters.isEmpty {
+      if !characters.isEmpty {
             self.tableView.scrollToRow(
                 at: IndexPath(row: 0, section: 0),
                 at: .top,
@@ -108,10 +109,11 @@ class CharactersListViewController: UITableViewController {
   }
 }
 
+
 extension CharactersListViewModel.State {
   var characters: [Character] {
     switch self {
-    case let .loaded(characters):
+    case let .loaded(characters, _):
       characters
     case .error, .loading:
       []
