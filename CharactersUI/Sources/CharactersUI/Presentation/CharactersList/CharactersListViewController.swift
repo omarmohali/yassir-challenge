@@ -8,7 +8,7 @@ class CharactersListViewController: UITableViewController {
   
   private static let cellIdentifier = "CharacterCell"
   private let viewModel: CharactersListViewModel
-  private let didSelectCharacter: (Character) -> Void
+  private(set) var didSelectCharacter: (Character) -> Void
   private var dataSource: UITableViewDiffableDataSource<Section, Character>!
   
   init(viewModel: CharactersListViewModel, didSelectCharacter: @escaping (Character) -> Void) {

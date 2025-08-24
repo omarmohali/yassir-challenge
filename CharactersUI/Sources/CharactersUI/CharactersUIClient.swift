@@ -9,19 +9,22 @@ public class CharactersUIClient {
     self.api = api
   }
   
-  @MainActor public func charactersUINavigationController() -> UINavigationController {
+  @MainActor
+  public func charactersUINavigationController() -> UINavigationController {
     let loader = CharactersLoader(api: api)
     let viewModel = CharactersListViewModel(charactersLoader: loader)
-    var nc: UINavigationController?
-    let viewController = CharactersListViewController(viewModel: viewModel) { character in
-      let characterDetailsView = CharacterDetailsView(character: character) {
-        nc?.popViewController(animated: true)
-        nc?.setNavigationBarHidden(false, animated: true)
+    let nc = UINavigationController()
+    
+    let listVC = CharactersListViewController(viewModel: viewModel) { character in
+      let detailsView = CharacterDetailsView(character: character) {
+        nc.popViewController(animated: true)
+        nc.setNavigationBarHidden(false, animated: true)
       }
-      nc?.setNavigationBarHidden(true, animated: true)
-      nc?.pushViewController(UIHostingController(rootView: characterDetailsView), animated: true)
+      nc.setNavigationBarHidden(true, animated: true)
+      nc.pushViewController(UIHostingController(rootView: detailsView), animated: true)
     }
-    nc = UINavigationController(rootViewController: viewController)
-    return nc!
+    
+    nc.viewControllers = [listVC]
+    return nc
   }
 }
