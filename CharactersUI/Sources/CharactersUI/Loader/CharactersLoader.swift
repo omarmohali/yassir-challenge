@@ -22,10 +22,7 @@ class CharactersLoader: CharactersLoaderProtocol {
       } catch {
         result = .failure(error)
       }
-      
-      await MainActor.run {
-        completion(result)
-      }
+      completion(result)
     }
   }
 }
