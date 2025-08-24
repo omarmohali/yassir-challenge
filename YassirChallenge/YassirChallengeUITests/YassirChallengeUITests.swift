@@ -8,36 +8,59 @@
 import XCTest
 
 final class YassirChallengeUITests: XCTestCase {
+  func testFilteringAndNavigating() throws {
+    let app = XCUIApplication()
+    app.launch()
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    let firstCharacterWithoutFilters = "Rick Sanchez"
+    let firstAliveCharacter = "Rick Sanchez"
+    let firstDeadCharacter = "Adjudicator Rick"
+    let firstUnknownCharacter = "Abradolf Lincler"
+    
+    checkCharacterExsistance(firstCharacterWithoutFilters, app: app)
 
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
+    tap("Unknown", app: app)
+    checkCharacterExsistance(firstUnknownCharacter, app: app)
+    
+    tap("Dead", app: app)
+    checkCharacterExsistance(firstDeadCharacter, app: app)
+    
+    tap("Alive", app: app)
+    checkCharacterExsistance(firstAliveCharacter, app: app)
+    
+    tap(firstAliveCharacter, app: app)
+    checkCharacterExsistance(firstAliveCharacter, app: app)
+  }
+  
+  func testInfiniteScrolling() throws {
+      let app = XCUIApplication()
+      app.launch()
 
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
+      let laterCharacter = "Black Rick"
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+      let laterCharacterElement = app.staticTexts[laterCharacter]
+      XCTAssertFalse(laterCharacterElement.isHittable, "\(laterCharacter) should not be visible before scrolling")
 
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
+      let table = app.tables.firstMatch
+      var found = false
+      for _ in 0..<5 {
+          table.swipeUp()
+          if laterCharacterElement.isHittable {
+              found = true
+              break
+          }
+      }
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    @MainActor
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
-    }
+      XCTAssertTrue(found, "Infinite scrolling did not load \(laterCharacter)")
+  }
+  
+  private func tap(_ text: String, app: XCUIApplication) {
+    let text = app.staticTexts[text]
+    text.tap()
+  }
+  
+  private func checkCharacterExsistance(_ characterName: String, app: XCUIApplication) {
+    let cell = app.staticTexts[characterName]
+    XCTAssertTrue(cell.waitForExistence(timeout: 5), "Could not find character \(characterName)")
+  }
 }
