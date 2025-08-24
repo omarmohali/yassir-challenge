@@ -80,14 +80,14 @@ class CharactersAPITests: XCTestCase {
   func testGetCharactersThrowsErrorWhenNetworkFails() async throws {
     let (sut, networkClient) = makeSUT()
     
-    let sampleError = NetworkError(statusCode: 500, data: .init())
+    let sampleError = httpError(.init(statusCode: 500, data: .init()))
     networkClient.result = .failure(sampleError)
 
     do {
       let _ = try await sut.getCharacters(page: 1)
       XCTFail("Should throw Network Error 500")
     } catch {
-      XCTAssertEqual(error as? NetworkError, NetworkError(statusCode: 500, data: .init()))
+      XCTAssertEqual(error as? NetworkError, httpError(.init(statusCode: 500, data: .init())))
     }
   }
   
@@ -96,6 +96,10 @@ class CharactersAPITests: XCTestCase {
     let networkClient = NetworkClientMock()
     let sut = CharactersAPI(networkClient: networkClient)
     return (sut, networkClient)
+  }
+  
+  private func httpError(_ httpError: NetworkError.HttpError) -> NetworkError {
+    .httpError(httpError)
   }
 }
 
