@@ -1,3 +1,4 @@
+@MainActor
 class CharactersListViewModel {
   enum State: Equatable {
     case loading
@@ -22,31 +23,27 @@ class CharactersListViewModel {
     self.charactersLoader = charactersLoader
   }
   
-  @MainActor
   func didLoad() {
     loadCharacters()
   }
   
-  @MainActor
   func loadMore() {
     page += 1
     loadCharacters()
   }
   
-  @MainActor
   func applyFilter(filter: Filter?) {
     self.filter = filter
     page = 1
     loadCharacters()
   }
   
-  @MainActor
   func retry() {
     state = .loading
     loadCharacters()
   }
   
-  @MainActor private func loadCharacters() {
+  private func loadCharacters() {
     charactersLoader.getCharacters(for: page, filter: filter) { [weak self] result in
       guard let self = self else { return }
       switch result {

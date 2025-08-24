@@ -36,7 +36,7 @@ final class YassirChallengeUITests: XCTestCase {
       let app = XCUIApplication()
       app.launch()
 
-      let laterCharacter = "Black Rick"
+      let laterCharacter = "Aqua Morty"
 
       let laterCharacterElement = app.staticTexts[laterCharacter]
       XCTAssertFalse(laterCharacterElement.isHittable, "\(laterCharacter) should not be visible before scrolling")
