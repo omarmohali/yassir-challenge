@@ -50,7 +50,7 @@ class GetCharactersTests: XCTestCase {
     XCTAssertEqual(data, responseData)
   }
   
-  func testThrowsNetworkErrorWhenResponseIs4xx() async throws {
+  func testThrowsHttpErrorWhenResponseIs4xx() async throws {
     let anyURL = URL(string: "www.any-url.com")!
     let responseData = "example data".data(using: .utf8)!
     let sut = NetworkClient(session: session, baseURL: anyURL)
@@ -66,11 +66,11 @@ class GetCharactersTests: XCTestCase {
       let _ = try await sut.get(path: "/path", queryItems: [])
       XCTFail("Should throw Network Error 400")
     } catch {
-      XCTAssertEqual(error as? NetworkError, NetworkError(statusCode: 400, data: responseData))
+      XCTAssertEqual(error as? NetworkError, .httpError(.init(statusCode: 400, data: responseData)))
     }
   }
   
-  func testThrowsNetworkErrorWhenResponseIs5xx() async throws {
+  func testThrowsHttpErrorWhenResponseIs5xx() async throws {
     let anyURL = URL(string: "www.any-url.com")!
     let responseData = "example data".data(using: .utf8)!
     let sut = NetworkClient(session: session, baseURL: anyURL)
@@ -86,7 +86,11 @@ class GetCharactersTests: XCTestCase {
       let _ = try await sut.get(path: "/path", queryItems: [])
       XCTFail("Should throw Network Error 500")
     } catch {
-      XCTAssertEqual(error as? NetworkError, NetworkError(statusCode: 500, data: responseData))
+      XCTAssertEqual(error as? NetworkError, .httpError(.init(statusCode: 500, data: responseData)))
     }
+  }
+  
+  private func httpError(_ httpError: NetworkError.HttpError) -> NetworkError {
+    .httpError(httpError)
   }
 }

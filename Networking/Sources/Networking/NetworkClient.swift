@@ -17,19 +17,22 @@ public class NetworkClient: NetworkClientProtocol {
   }
   
   public func get(path: String, queryItems: [URLQueryItem]) async throws -> Data {
-    var urlComponents = URLComponents(string: "\(baseURL.absoluteString)\(path)")
-    if !queryItems.isEmpty {
-        urlComponents?.queryItems = queryItems
-    }
+    var urlComponents = URLComponents(url: baseURL.appending(path: path), resolvingAgainstBaseURL: false)
     
-    guard let url = urlComponents?.url else { throw NSError() }
+    urlComponents?.queryItems = queryItems.isEmpty ? nil : queryItems
+    
+    guard let url = urlComponents?.url else {
+      throw NetworkError.invalidUrl
+    }
     
     let request = URLRequest(url: url)
     
     let (data, response) = try await session.data(for: request)
     if let httpResponse = response as? HTTPURLResponse,
        httpResponse.statusCode >= 400 && httpResponse.statusCode <= 599 {
-      throw NetworkError(statusCode: httpResponse.statusCode, data: data)
+      throw NetworkError.httpError(
+        .init(statusCode: httpResponse.statusCode, data: data)
+      )
     } else {
       return data
     }
