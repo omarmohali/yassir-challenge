@@ -1,7 +1,7 @@
 import UIKit
 import SwiftUI
 
-class CharactersListViewController: UITableViewController {
+class CharactersListViewController: UITableViewController, UITableViewDataSourcePrefetching {
   enum Section {
       case main
   }
@@ -31,7 +31,7 @@ class CharactersListViewController: UITableViewController {
         self?.bindView()
       }
     }
-    
+    tableView.prefetchDataSource = self
     tableView.register(CharacterTableViewCell.self, forCellReuseIdentifier: Self.cellIdentifier)
     tableView.separatorStyle = .none
     
@@ -54,13 +54,13 @@ class CharactersListViewController: UITableViewController {
   override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
       return 50
   }
-  
-  override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-    if indexPath.row == (viewModel.state.characters.count - 1) {
+
+  func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+    if indexPaths.contains(where: { $0.row >= viewModel.state.characters.count - 5 }) {
       viewModel.loadMore()
     }
   }
-
+  
   override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
     let filtersView = FiltersView() { [weak self] filter in
       self?.viewModel.applyFilter(filter: filter)
