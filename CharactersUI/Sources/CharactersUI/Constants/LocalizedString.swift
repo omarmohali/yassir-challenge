@@ -20,6 +20,6 @@ enum LocalizedString {
   
   enum Generic {
     static let retry = L10n("generic_retry")
-    static let somethingWentWrong = L10n("something_went_wrong")
+    static let somethingWentWrong = L10n("generic_something_went_wrong")
   }
 }
